@@ -43,62 +43,62 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-        switch(robotStatus) {
-        case 0:
-          manual();
-        case 1:
-          autonomous();
-      }
+  switch (robotStatus) {
+    case 0:
+      manual();
+    case 1:
+      autonomous();
+  }
 
 }
 
 
-void manual(){
+void manual() {
   incomingByte = Serial.read();
 
-      if (incomingByte == 'W')|| (incomingByte == 'w') {
-        
-        Serial.print("Moving Forward");
-        motors.setRightSpeed(100);
-        motors.setLeftSpeed(100);
-        delay(2);
+  if ((incomingByte == 'W') || (incomingByte == 'w')) {
 
-    }
+    Serial.print("Moving Forward");
+    motors.setRightSpeed(100);
+    motors.setLeftSpeed(100);
+    delay(2);
 
-    if (incomingByte == 'S') || (incomingByte == 's'){
+  }
 
-        Serial.print("Moving Backward");
-        motors.setLeftSpeed(-100);
-        motors.setRightSpeed(-100);
-        delay(2);
+  if ((incomingByte == 'S') || (incomingByte == 's')) {
 
-    }
+    Serial.print("Moving Backward");
+    motors.setLeftSpeed(-100);
+    motors.setRightSpeed(-100);
+    delay(2);
 
-    if (incomingByte == 'A') || (incomingByte == 'a'){
+  }
 
-        Serial.print("Moving Left");
-        motors.setLeftSpeed(0);
-        motors.setRightSpeed(100);
-        delay(2);  
-    }
+  if ((incomingByte == 'A') || (incomingByte == 'a')) {
 
-    if (incomingByte == 'D')|| (incomingByte == 'd') {
+    Serial.print("Moving Left");
+    motors.setLeftSpeed(0);
+    motors.setRightSpeed(100);
+    delay(2);
+  }
 
-        Serial.print("Moving Right");
-        motors.setLeftSpeed(100);
-        motors.setRightSpeed(0);
-        delay(2);
-      }
+  if ((incomingByte == 'D') || (incomingByte == 'd')) {
 
-    if (incomingByte == 'K')|| (incomingByte == 'k') {
-        
-        Serial.print("Stop!");
-        motors.setSpeeds(0, 0);
+    Serial.print("Moving Right");
+    motors.setLeftSpeed(100);
+    motors.setRightSpeed(0);
+    delay(2);
+  }
 
-    }
-  
+  if ((incomingByte == 'K') || (incomingByte == 'k')) {
+
+    Serial.print("Stop!");
+    motors.setSpeeds(0, 0);
+
+  }
+
 
 }
 
-void autonomous(){
+void autonomous() {
 }
