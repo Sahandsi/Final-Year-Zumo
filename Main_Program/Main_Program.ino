@@ -54,6 +54,50 @@ void loop() {
 
 
 void manual(){
+  incomingByte = Serial.read();
+
+      if (incomingByte == 'W')|| (incomingByte == 'w') {
+        
+        Serial.print("Moving Forward");
+        motors.setRightSpeed(100);
+        motors.setLeftSpeed(100);
+        delay(2);
+
+    }
+
+    if (incomingByte == 'S') || (incomingByte == 's'){
+
+        Serial.print("Moving Backward");
+        motors.setLeftSpeed(-100);
+        motors.setRightSpeed(-100);
+        delay(2);
+
+    }
+
+    if (incomingByte == 'A') || (incomingByte == 'a'){
+
+        Serial.print("Moving Left");
+        motors.setLeftSpeed(0);
+        motors.setRightSpeed(100);
+        delay(2);  
+    }
+
+    if (incomingByte == 'D')|| (incomingByte == 'd') {
+
+        Serial.print("Moving Right");
+        motors.setLeftSpeed(100);
+        motors.setRightSpeed(0);
+        delay(2);
+      }
+
+    if (incomingByte == 'K')|| (incomingByte == 'k') {
+        
+        Serial.print("Stop!");
+        motors.setSpeeds(0, 0);
+
+    }
+  
+
 }
 
 void autonomous(){
