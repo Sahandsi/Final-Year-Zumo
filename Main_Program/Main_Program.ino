@@ -23,8 +23,8 @@
 #define ECHO_PIN           6  // 
 #define STRING_TERMINATOR "!" // used as the last char to be sent over serial connection
 
-int robotStatus;
-int motorSpeed;
+int robotStatus = 0;
+int motorSpeed = 200;
 bool crawl = false;
 
 ZumoMotors motors;
@@ -39,18 +39,11 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   incomingByte = Serial.read();
+
 }
 
 void loop() {
 
-
-  if (crawl == false) {
-    motorSpeed = 100;
-  }
-  else {
-    motorSpeed = 20;
-  }
-  
   switch (robotStatus) {
     case 0:
       manual();
@@ -66,6 +59,9 @@ void manual() {
 
   if ((incomingByte == 'U') || (incomingByte == 'u')) {
     crawl = true;
+    motors.setRightSpeed(100);
+    motors.setLeftSpeed(100);
+
   }
 
   if ((incomingByte == 'W') || (incomingByte == 'w')) {
@@ -108,7 +104,6 @@ void manual() {
     motors.setSpeeds(0, 0);
 
   }
-
 
 }
 
