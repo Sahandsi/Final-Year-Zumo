@@ -23,20 +23,38 @@
 #define ECHO_PIN           6  // 
 #define STRING_TERMINATOR "!" // used as the last char to be sent over serial connection
 
+int robotStatus;
+
+
 ZumoMotors motors;
 ZumoReflectanceSensorArray sensors;
 ZumoBuzzer buzzer;
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 
-
+int incomingByte;      // a variable to read incoming serial data into
 
 
 void setup() {
   // put your setup code here, to run once:
+  Serial.begin(9600);
+  incomingByte = Serial.read();
 
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+        switch(robotStatus) {
+        case 0:
+          manual();
+        case 1:
+          autonomous();
+      }
 
+}
+
+
+void manual(){
+}
+
+void autonomous(){
 }
