@@ -24,7 +24,8 @@
 #define STRING_TERMINATOR "!" // used as the last char to be sent over serial connection
 
 int robotStatus;
-
+int motorSpeed;
+bool crawl = false;
 
 ZumoMotors motors;
 ZumoReflectanceSensorArray sensors;
@@ -38,11 +39,18 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   incomingByte = Serial.read();
-
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+
+
+  if (crawl == false) {
+    motorSpeed = 100;
+  }
+  else {
+    motorSpeed = 20;
+  }
+  
   switch (robotStatus) {
     case 0:
       manual();
@@ -56,11 +64,15 @@ void loop() {
 void manual() {
   incomingByte = Serial.read();
 
+  if ((incomingByte == 'U') || (incomingByte == 'u')) {
+    crawl = true;
+  }
+
   if ((incomingByte == 'W') || (incomingByte == 'w')) {
 
     Serial.print("Moving Forward");
-    motors.setRightSpeed(100);
-    motors.setLeftSpeed(100);
+    motors.setRightSpeed(motorSpeed);
+    motors.setLeftSpeed(motorSpeed);
     delay(2);
 
   }
@@ -78,14 +90,14 @@ void manual() {
 
     Serial.print("Moving Left");
     motors.setLeftSpeed(0);
-    motors.setRightSpeed(100);
+    motors.setRightSpeed(motorSpeed);
     delay(2);
   }
 
   if ((incomingByte == 'D') || (incomingByte == 'd')) {
 
     Serial.print("Moving Right");
-    motors.setLeftSpeed(100);
+    motors.setLeftSpeed(motorSpeed);
     motors.setRightSpeed(0);
     delay(2);
   }
