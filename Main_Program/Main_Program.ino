@@ -24,8 +24,8 @@
 #define STRING_TERMINATOR "!" // used as the last char to be sent over serial connection
 
 int robotStatus = 0;
-int motorSpeed = 200;
-bool crawl = false;
+int motorSpeed;
+int speed = 100;
 
 ZumoMotors motors;
 ZumoReflectanceSensorArray sensors;
@@ -37,16 +37,56 @@ int incomingByte;      // a variable to read incoming serial data into
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
-  incomingByte = Serial.read();
+//  Serial.begin(9600);
+  //incomingByte = Serial.read();
+
+  while(!Serial);
+Serial.begin (9600);
+
 
 }
 
 void loop() {
 
+// if (incomingByte == 'u')
+//{
+////int speed = Serial.parseInt();
+//speed = 50;
+////if (speed >= 0 && speed <= 255)
+////Serial.println(speed);
+////digitalWrite(ledPin, HIGH);
+////analogWrite(5, speed);
+////analogWrite(6, speed);
+////    motors.setRightSpeed(speed);
+////    motors.setLeftSpeed(speed);
+//}
+// if (incomingByte != 'u')
+//{
+//  speed=100;
+//}
+
+  
   switch (robotStatus) {
     case 0:
       manual();
+       if (incomingByte == 'u')
+{
+//int speed = Serial.parseInt();
+speed = 0;
+Serial.println("hello");
+//if (speed >= 0 && speed <= 255)
+//Serial.println(speed);
+//digitalWrite(ledPin, HIGH);
+//analogWrite(5, speed);
+//analogWrite(6, speed);
+//    motors.setRightSpeed(speed);
+//    motors.setLeftSpeed(speed);
+}
+ else if (incomingByte != 'u')
+{
+  speed=100;
+
+}
     case 1:
       autonomous();
   }
@@ -56,28 +96,32 @@ void loop() {
 
 void manual() {
   incomingByte = Serial.read();
-
-  if ((incomingByte == 'U') || (incomingByte == 'u')) {
-    crawl = true;
-    motors.setRightSpeed(100);
-    motors.setLeftSpeed(100);
-
-  }
+//
+//  if (incomingByte == 'U') {
+//    motorSpeed = 50;
+//    Serial.print("moving 20");
+//    delay(1);
+//  }
+//  else if (incomingByte == 'P'){
+//    motorSpeed = 100;
+//    Serial.print("moving 100");
+//    delay(1);
+//  }
 
   if ((incomingByte == 'W') || (incomingByte == 'w')) {
 
     Serial.print("Moving Forward");
-    motors.setRightSpeed(motorSpeed);
-    motors.setLeftSpeed(motorSpeed);
-    delay(2);
+    motors.setRightSpeed(speed);
+    motors.setLeftSpeed(speed);
+//    delay(2);
 
   }
 
   if ((incomingByte == 'S') || (incomingByte == 's')) {
 
     Serial.print("Moving Backward");
-    motors.setLeftSpeed(-100);
-    motors.setRightSpeed(-100);
+    motors.setLeftSpeed(-motorSpeed);
+    motors.setRightSpeed(-motorSpeed);
     delay(2);
 
   }
