@@ -26,9 +26,11 @@
 int robotStatus = 0;
 int motorSpeed;
 int speed = 100;
+bool sideBorder = false;
+bool walldetected = false;
 
 ZumoMotors motors;
-ZumoReflectanceSensorArray sensors;
+ZumoReflectanceSensorArray lineSensors;
 ZumoBuzzer buzzer;
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 
@@ -36,120 +38,115 @@ int incomingByte;      // a variable to read incoming serial data into
 
 
 void setup() {
+  Serial.begin (9600);
   // put your setup code here, to run once:
-//  Serial.begin(9600);
-  //incomingByte = Serial.read();
+  //  Serial.begin(9600);
+  incomingByte = Serial.read();
+  while (incomingByte != 'h')
+  {
+    incomingByte = (char) Serial.read();
+  }
 
-  while(!Serial);
-Serial.begin (9600);
+  caliberate();
 
 
 }
 
 void loop() {
 
-// if (incomingByte == 'u')
-//{
-////int speed = Serial.parseInt();
-//speed = 50;
-////if (speed >= 0 && speed <= 255)
-////Serial.println(speed);
-////digitalWrite(ledPin, HIGH);
-////analogWrite(5, speed);
-////analogWrite(6, speed);
-////    motors.setRightSpeed(speed);
-////    motors.setLeftSpeed(speed);
-//}
-// if (incomingByte != 'u')
-//{
-//  speed=100;
-//}
-
-  
   switch (robotStatus) {
     case 0:
       manual();
-       if (incomingByte == 'u')
-{
-//int speed = Serial.parseInt();
-speed = 0;
-Serial.println("hello");
-//if (speed >= 0 && speed <= 255)
-//Serial.println(speed);
-//digitalWrite(ledPin, HIGH);
-//analogWrite(5, speed);
-//analogWrite(6, speed);
-//    motors.setRightSpeed(speed);
-//    motors.setLeftSpeed(speed);
-}
- else if (incomingByte != 'u')
-{
-  speed=100;
+      Serial.println("in Manual mode");
 
-}
     case 1:
       autonomous();
+      Serial.println("in Auto mode");
   }
-
 }
 
-
 void manual() {
-  incomingByte = Serial.read();
-//
-//  if (incomingByte == 'U') {
-//    motorSpeed = 50;
-//    Serial.print("moving 20");
-//    delay(1);
-//  }
-//  else if (incomingByte == 'P'){
-//    motorSpeed = 100;
-//    Serial.print("moving 100");
-//    delay(1);
-//  }
 
-  if ((incomingByte == 'W') || (incomingByte == 'w')) {
 
-    Serial.print("Moving Forward");
-    motors.setRightSpeed(speed);
-    motors.setLeftSpeed(speed);
-//    delay(2);
+  while ((sideBorder == false) && (walldetected == false))
+  {
+    incomingByte = Serial.read();
+
+    if ((incomingByte == 'W') || (incomingByte == 'w')) {
+
+      Serial.print("Moving Forward");
+      motors.setRightSpeed(speed);
+      motors.setLeftSpeed(speed);
+      //    delay(2);
+
+    }
+
+    if ((incomingByte == 'S') || (incomingByte == 's')) {
+
+      Serial.print("Moving Backward");
+      motors.setLeftSpeed(-motorSpeed);
+      motors.setRightSpeed(-motorSpeed);
+      delay(2);
+
+    }
+
+    if ((incomingByte == 'A') || (incomingByte == 'a')) {
+
+      Serial.print("Moving Left");
+      motors.setLeftSpeed(0);
+      motors.setRightSpeed(motorSpeed);
+      delay(2);
+    }
+
+    if ((incomingByte == 'D') || (incomingByte == 'd')) {
+
+      Serial.print("Moving Right");
+      motors.setLeftSpeed(motorSpeed);
+      motors.setRightSpeed(0);
+      delay(2);
+    }
+
+    if ((incomingByte == 'K') || (incomingByte == 'k')) {
+
+      Serial.print("Stop!");
+      motors.setSpeeds(0, 0);
+
+    }
+
+    if ((incomingByte == 'Y') || (incomingByte == 'y')) {
+
+      Serial.print("Auto on!");
+      robotStatus = 1;
+      break;
+    }
 
   }
+}
 
-  if ((incomingByte == 'S') || (incomingByte == 's')) {
+void caliberate() {
 
-    Serial.print("Moving Backward");
-    motors.setLeftSpeed(-motorSpeed);
-    motors.setRightSpeed(-motorSpeed);
-    delay(2);
+  int i;
+  for (i = 0; i < 80; i++)
+  {
+    if ((i > 10 && i <= 30) || (i > 50 && i <= 70))
+      motors.setSpeeds(-200, 200);
+    else
+      motors.setSpeeds(200, -200);
+    lineSensors.calibrate();
 
-  }
-
-  if ((incomingByte == 'A') || (incomingByte == 'a')) {
-
-    Serial.print("Moving Left");
-    motors.setLeftSpeed(0);
-    motors.setRightSpeed(motorSpeed);
-    delay(2);
-  }
-
-  if ((incomingByte == 'D') || (incomingByte == 'd')) {
-
-    Serial.print("Moving Right");
-    motors.setLeftSpeed(motorSpeed);
-    motors.setRightSpeed(0);
-    delay(2);
-  }
-
-  if ((incomingByte == 'K') || (incomingByte == 'k')) {
-
-    Serial.print("Stop!");
-    motors.setSpeeds(0, 0);
+    // Since our counter runs to 80, the total delay will be
+    // 80*20 = 1600 ms.
+    delay(20);
 
   }
+  motors.setSpeeds(0, 0);
+
+  // Turn off LED to indicate we are through with calibration
+  digitalWrite(13, LOW);
+  buzzer.play(">g32>>c32");
 
 }
 
 void autonomous() {
+
 }
