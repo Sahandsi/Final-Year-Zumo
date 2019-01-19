@@ -64,7 +64,7 @@ void loop() {
   switch (robotStatus) {
     case 0:
       manual();
-      Serial.println("in Manual mode");
+//      Serial.println("in Manual mode");
 
     case 1:
       autonomous();
@@ -165,11 +165,9 @@ void caliberate() {
 
 void autonomous() {
 
-
-
   sensors.read(sensor_values);
   //  Serial.print(sensor_values[5]);
-  Serial.print(calibrateData[5]);
+  //  Serial.print(calibrateData[5]);
 
   if (sensor_values[0] >= calibrateData[0])
   {
