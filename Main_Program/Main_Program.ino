@@ -22,7 +22,6 @@
 #define MAX_DISTANCE      30  // 
 #define TRIGGER_PIN        2  // 
 #define ECHO_PIN           6  // 
-#define STRING_TERMINATOR "!" // used as the last char to be sent over serial connection
 
 unsigned int sensor_values[NUM_SENSORS]; // declare number of sensors on the zumo
 int robotStatus = 0;
