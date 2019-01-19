@@ -117,6 +117,14 @@ void manual() {
       motors.setSpeeds(0, 0);
     }
 
+    
+    if ((incomingByte == 'C') || (incomingByte == 'c')) {
+
+      Serial.print("Auto on!");
+      robotStatus = 1;
+      break;
+    }
+
     if ((incomingByte == 'K') || (incomingByte == 'k')) {
 
       Serial.print("Stop!");
