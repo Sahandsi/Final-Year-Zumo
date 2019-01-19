@@ -10,11 +10,12 @@
   global variable declarations
   -------------------------------------------------------------------------*/
 #define LED 13
-
 // these might need to be tuned for different motor types
+
 #define NUM_SENSORS        6  // 
 #define REVERSE_SPEED     50 // 
 #define TURN_SPEED        100
+#define CALIBERATE_SPEED  150
 #define FORWARD_SPEED     100
 #define REVERSE_DURATION  200 // ms
 #define TURN_DURATION     150 // ms
@@ -23,14 +24,16 @@
 #define ECHO_PIN           6  // 
 #define STRING_TERMINATOR "!" // used as the last char to be sent over serial connection
 
+unsigned int sensor_values[NUM_SENSORS]; // declare number of sensors on the zumo
 int robotStatus = 0;
 int motorSpeed;
+int calibrateData[6];
 int speed = 100;
 bool sideBorder = false;
 bool walldetected = false;
 
 ZumoMotors motors;
-ZumoReflectanceSensorArray lineSensors;
+ZumoReflectanceSensorArray sensors(QTR_NO_EMITTER_PIN);
 ZumoBuzzer buzzer;
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 
@@ -48,6 +51,10 @@ void setup() {
   }
 
   caliberate();
+  //  for (int i = 0; i < NUM_SENSORS; i++)
+  //  {
+  //    calibrateData[i] = sensors.calibratedMaximumOn[i];
+  //  }
 
 
 }
@@ -61,7 +68,7 @@ void loop() {
 
     case 1:
       autonomous();
-      Serial.println("in Auto mode");
+      //      Serial.println("in Auto mode");
   }
 }
 
@@ -125,19 +132,28 @@ void manual() {
 
 void caliberate() {
 
-  int i;
-  for (i = 0; i < 80; i++)
-  {
-    if ((i > 10 && i <= 30) || (i > 50 && i <= 70))
-      motors.setSpeeds(-200, 200);
-    else
-      motors.setSpeeds(200, -200);
-    lineSensors.calibrate();
+  sensors.init();
 
-    // Since our counter runs to 80, the total delay will be
-    // 80*20 = 1600 ms.
+  for (int i = 0; i < 160; i++)
+  {
+    if ((i > 10 && i <= 30) || (i > 50 && i <= 70) || (i > 90 && i <= 110) ||  (i > 130 && i <= 150) ) //extension of line follower and maze solver to higher numbers using trial and error
+    {
+      // On above numbers spin right
+      motors.setSpeeds(-CALIBERATE_SPEED, CALIBERATE_SPEED);
+    }
+    else
+    {
+      // on other numbers spin left
+      motors.setSpeeds(CALIBERATE_SPEED, -CALIBERATE_SPEED);
+    }
+
+    sensors.calibrate();
     delay(20);
 
+    for (int i = 0; i < NUM_SENSORS; i++)
+    {
+      calibrateData[i] = sensors.calibratedMaximumOn[i];
+    }
   }
   motors.setSpeeds(0, 0);
 
@@ -148,5 +164,35 @@ void caliberate() {
 }
 
 void autonomous() {
+
+
+
+  sensors.read(sensor_values);
+  //  Serial.print(sensor_values[5]);
+  Serial.print(calibrateData[5]);
+
+  if (sensor_values[0] >= calibrateData[0])
+  {
+    // if leftmost sensor detects line, reverse and turn to the right
+    motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
+    delay(REVERSE_DURATION);
+    motors.setSpeeds(TURN_SPEED, -TURN_SPEED);
+    delay(TURN_DURATION);
+    motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+  }
+  else if (sensor_values[5] >= calibrateData[5])
+  {
+    // if rightmost sensor detects line, reverse and turn to the left
+    motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
+    delay(REVERSE_DURATION);
+    motors.setSpeeds(-TURN_SPEED, TURN_SPEED);
+    delay(TURN_DURATION);
+    motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+  }
+  else
+  {
+    // otherwise, go straight
+    motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+  }
 
 }
