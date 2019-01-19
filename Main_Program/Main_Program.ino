@@ -16,7 +16,7 @@
 #define REVERSE_SPEED     50 // 
 #define TURN_SPEED        100
 #define CALIBERATE_SPEED  150
-#define FORWARD_SPEED     100
+#define FORWARD_SPEED     200
 #define REVERSE_DURATION  200 // ms
 #define TURN_DURATION     150 // ms
 #define MAX_DISTANCE      30  // 
@@ -39,6 +39,7 @@ NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and
 
 int incomingByte;      // a variable to read incoming serial data into
 
+#define ABOVE_LINE(sensor)((sensor) > SENSOR_THRESHOLD)
 
 void setup() {
   Serial.begin (9600);
@@ -64,7 +65,7 @@ void loop() {
   switch (robotStatus) {
     case 0:
       manual();
-//      Serial.println("in Manual mode");
+    //      Serial.println("in Manual mode");
 
     case 1:
       autonomous();
@@ -84,33 +85,37 @@ void manual() {
       Serial.print("Moving Forward");
       motors.setRightSpeed(speed);
       motors.setLeftSpeed(speed);
-      //    delay(2);
-
+      delay(250);
+      motors.setSpeeds(0, 0);
     }
 
     if ((incomingByte == 'S') || (incomingByte == 's')) {
 
       Serial.print("Moving Backward");
-      motors.setLeftSpeed(-motorSpeed);
-      motors.setRightSpeed(-motorSpeed);
-      delay(2);
+      motors.setLeftSpeed(-speed);
+      motors.setRightSpeed(-speed);
+      delay(250);
+      motors.setSpeeds(0, 0);
 
+ 
     }
 
     if ((incomingByte == 'A') || (incomingByte == 'a')) {
 
       Serial.print("Moving Left");
       motors.setLeftSpeed(0);
-      motors.setRightSpeed(motorSpeed);
-      delay(2);
+      motors.setRightSpeed(speed);
+      delay(250);
+      motors.setSpeeds(0, 0);
     }
 
     if ((incomingByte == 'D') || (incomingByte == 'd')) {
 
       Serial.print("Moving Right");
-      motors.setLeftSpeed(motorSpeed);
+      motors.setLeftSpeed(speed);
       motors.setRightSpeed(0);
-      delay(2);
+      delay(250);
+      motors.setSpeeds(0, 0);
     }
 
     if ((incomingByte == 'K') || (incomingByte == 'k')) {
@@ -169,21 +174,30 @@ void autonomous() {
   //  Serial.print(sensor_values[5]);
   //  Serial.print(calibrateData[5]);
 
-  if (sensor_values[0] >= calibrateData[0])
-  {
-    // if leftmost sensor detects line, reverse and turn to the right
+
+  if (sensor_values[3] > calibrateData[3] ) {
+    // if the middle sensors detect line, stop
     motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
-    delay(REVERSE_DURATION);
-    motors.setSpeeds(TURN_SPEED, -TURN_SPEED);
-    delay(TURN_DURATION);
-    motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+    motors.setSpeeds(0, 0);
+    Serial.println("Wall");
+    robotStatus = 0;
   }
+
   else if (sensor_values[5] >= calibrateData[5])
   {
     // if rightmost sensor detects line, reverse and turn to the left
     motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
     delay(REVERSE_DURATION);
     motors.setSpeeds(-TURN_SPEED, TURN_SPEED);
+    delay(TURN_DURATION);
+    motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+  }
+
+  else if (sensor_values[0] >= calibrateData[0]) {
+    // if leftmost sensor detects line, reverse and turn to the right
+    motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
+    delay(REVERSE_DURATION);
+    motors.setSpeeds(TURN_SPEED, -TURN_SPEED);
     delay(TURN_DURATION);
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
   }
