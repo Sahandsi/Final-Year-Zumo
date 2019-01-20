@@ -242,45 +242,44 @@ void autonomous() {
       Serial.print("chargeeee");
     }
 //  }
-  Serial.print("im out!");
-  Serial.print(robotStatus);
+
 }
 
 void searchRoom() {
 
-//  incomingByte = Serial.read();
-//  while (incomingByte != 'm')
-//  {
-//    incomingByte = (char) Serial.read();
-//  }
-//
-//  if ((incomingByte == 'L') || (incomingByte == 'l')) {
-//
-//    Serial.print("Moving Left");
-//    motors.setLeftSpeed(0);
-//    motors.setRightSpeed(speed);
-//    delay(800);
-//    Serial.print("Moving Forward");
-//    motors.setRightSpeed(speed);
-//    motors.setLeftSpeed(speed);
-//    delay(250);
-//    motors.setSpeeds(0, 0);
-//
-//  }
-//
-//  if ((incomingByte == 'R') || (incomingByte == 'r')) {
-//
-//    Serial.print("Moving Right");
-//    motors.setLeftSpeed(speed);
-//    motors.setRightSpeed(0);
-//    delay(800);
-//    Serial.print("Moving Forward");
-//    motors.setRightSpeed(speed);
-//    motors.setLeftSpeed(speed);
-//    delay(250);
-//    motors.setSpeeds(0, 0);
-//
-//  }
+  incomingByte = Serial.read();
+  if (incomingByte != 'm')
+  {
+    incomingByte = (char) Serial.read();
+  }
+
+  if ((incomingByte == 'L') || (incomingByte == 'l')) {
+
+    Serial.print("Moving Left");
+    motors.setLeftSpeed(0);
+    motors.setRightSpeed(speed);
+    delay(800);
+    Serial.print("Moving Forward");
+    motors.setRightSpeed(speed);
+    motors.setLeftSpeed(speed);
+    delay(250);
+    motors.setSpeeds(0, 0);
+
+  }
+
+  if ((incomingByte == 'R') || (incomingByte == 'r')) {
+
+    Serial.print("Moving Right");
+    motors.setLeftSpeed(speed);
+    motors.setRightSpeed(0);
+    delay(800);
+    Serial.print("Moving Forward");
+    motors.setRightSpeed(speed);
+    motors.setLeftSpeed(speed);
+    delay(250);
+    motors.setSpeeds(0, 0);
+
+  }
 
   //    if ((incomingByte == 'S') || (incomingByte == 's')) {
   //
