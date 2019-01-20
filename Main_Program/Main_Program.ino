@@ -191,27 +191,22 @@ void caliberate() {
 
 void autonomous() {
 
-//  while ((sideBorder == false) && (walldetected == false))
-//  {
-
     incomingByte = Serial.read();
 
     sensors.read(sensor_values);
-    Serial.print(sensor_values[5]);
+//    Serial.print(sensor_values[5]);
     //    Serial.print(calibrateData[5]);
 
     if ((incomingByte == 'K') || (incomingByte == 'k'))
     {
       motors.setSpeeds(0, 0);
       robotStatus = 0;
-      Serial.print("stopppppp");
     }
 
     else if (sensor_values[3] > calibrateData[3] ) {
       // if the middle sensors detect line, stop
       motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
       motors.setSpeeds(0, 0);
-      Serial.println("Wall");
       robotStatus = 0;
       
     }
@@ -247,39 +242,39 @@ void autonomous() {
 
 void searchRoom() {
 
-  incomingByte = Serial.read();
-  if (incomingByte != 'm')
-  {
-    incomingByte = (char) Serial.read();
-  }
-
-  if ((incomingByte == 'L') || (incomingByte == 'l')) {
-
-    Serial.print("Moving Left");
-    motors.setLeftSpeed(0);
-    motors.setRightSpeed(speed);
-    delay(800);
-    Serial.print("Moving Forward");
-    motors.setRightSpeed(speed);
-    motors.setLeftSpeed(speed);
-    delay(250);
-    motors.setSpeeds(0, 0);
-
-  }
-
-  if ((incomingByte == 'R') || (incomingByte == 'r')) {
-
-    Serial.print("Moving Right");
-    motors.setLeftSpeed(speed);
-    motors.setRightSpeed(0);
-    delay(800);
-    Serial.print("Moving Forward");
-    motors.setRightSpeed(speed);
-    motors.setLeftSpeed(speed);
-    delay(250);
-    motors.setSpeeds(0, 0);
-
-  }
+//  incomingByte = Serial.read();
+//  if (incomingByte != 'm')
+//  {
+//    incomingByte = (char) Serial.read();
+//  }
+////
+//  if ((incomingByte == 'L') || (incomingByte == 'l')) {
+//
+//    Serial.print("Moving Left");
+//    motors.setLeftSpeed(0);
+//    motors.setRightSpeed(speed);
+//    delay(800);
+//    Serial.print("Moving Forward");
+//    motors.setRightSpeed(speed);
+//    motors.setLeftSpeed(speed);
+//    delay(250);
+//    motors.setSpeeds(0, 0);
+//
+//  }
+//
+//  if ((incomingByte == 'R') || (incomingByte == 'r')) {
+//
+//    Serial.print("Moving Right");
+//    motors.setLeftSpeed(speed);
+//    motors.setRightSpeed(0);
+//    delay(800);
+//    Serial.print("Moving Forward");
+//    motors.setRightSpeed(speed);
+//    motors.setLeftSpeed(speed);
+//    delay(250);
+//    motors.setSpeeds(0, 0);
+//
+//  }
 
   //    if ((incomingByte == 'S') || (incomingByte == 's')) {
   //
@@ -341,5 +336,83 @@ void searchRoom() {
   //      break;
   //
   //    }
+
+
+  while ((sideBorder == false) && (walldetected == false))
+  {
+    incomingByte = Serial.read();
+
+    if ((incomingByte == 'W') || (incomingByte == 'w')) {
+
+      Serial.print("Moving Forward");
+      motors.setRightSpeed(speed);
+      motors.setLeftSpeed(speed);
+      delay(250);
+      motors.setSpeeds(0, 0);
+    }
+
+    if ((incomingByte == 'S') || (incomingByte == 's')) {
+
+      Serial.print("Moving Backward");
+      motors.setLeftSpeed(-speed);
+      motors.setRightSpeed(-speed);
+      delay(250);
+      motors.setSpeeds(0, 0);
+
+
+    }
+
+    if ((incomingByte == 'A') || (incomingByte == 'a')) {
+
+      Serial.print("Moving Left");
+      motors.setLeftSpeed(0);
+      motors.setRightSpeed(speed);
+      delay(250);
+      motors.setSpeeds(0, 0);
+    }
+
+    if ((incomingByte == 'D') || (incomingByte == 'd')) {
+
+      Serial.print("Moving Right");
+      motors.setLeftSpeed(speed);
+      motors.setRightSpeed(0);
+      delay(250);
+      motors.setSpeeds(0, 0);
+    }
+
+
+    if ((incomingByte == 'C') || (incomingByte == 'c')) {
+
+      Serial.print("Auto on!");
+      robotStatus = 1;
+      break;
+    }
+
+    if ((incomingByte == 'K') || (incomingByte == 'k')) {
+
+      Serial.print("Stop!");
+      motors.setSpeeds(0, 0);
+
+    }
+
+
+    if ((incomingByte == 'Y') || (incomingByte == 'y')) {
+
+      Serial.print("Auto on!");
+      robotStatus = 1;
+      break;
+    }
+
+
+    if ((incomingByte == 'M') || (incomingByte == 'm')) {
+
+      Serial.print("Stop for Room!");
+      robotStatus = 2;
+      break;
+
+    }
+
+  }
+
 
 }
