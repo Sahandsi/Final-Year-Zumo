@@ -16,12 +16,12 @@
 #define REVERSE_SPEED     50 // 
 #define TURN_SPEED        100
 #define CALIBERATE_SPEED  150
-#define FORWARD_SPEED     200
+#define FORWARD_SPEED     150
 #define REVERSE_DURATION  200 // ms
 #define TURN_DURATION     150 // ms
 #define MAX_DISTANCE      30  // 
-#define TRIGGER_PIN        2  // 
-#define ECHO_PIN           6  // 
+#define TRIGGER_PIN        8  // 
+#define ECHO_PIN           9  // 
 
 unsigned int sensor_values[NUM_SENSORS]; // declare number of sensors on the zumo
 int robotStatus = 0;
@@ -177,18 +177,26 @@ void caliberate() {
 
 void autonomous() {
 
+  incomingByte = Serial.read();
+
   sensors.read(sensor_values);
   //  Serial.print(sensor_values[5]);
   //  Serial.print(calibrateData[5]);
 
+    if ((incomingByte == 'K') || (incomingByte == 'k'))
+  {
+    motors.setSpeeds(0, 0);
+    robotStatus = 0;
+  }
 
-  if (sensor_values[3] > calibrateData[3] ) {
+  else if (sensor_values[3] > calibrateData[3] ) {
     // if the middle sensors detect line, stop
     motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
     motors.setSpeeds(0, 0);
     Serial.println("Wall");
     robotStatus = 0;
   }
+
 
   else if (sensor_values[5] >= calibrateData[5])
   {
@@ -213,5 +221,8 @@ void autonomous() {
     // otherwise, go straight
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
   }
+  
+
+
 
 }
