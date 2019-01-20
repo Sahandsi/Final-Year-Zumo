@@ -1,4 +1,5 @@
-# Programming Things Individual Assignment - Zumo Search & Rescue
+# Programming Things Individual Assignment 
+# Zumo Search & Rescue
 
 This is a project for our first semester assignment for programming things. We are tasked to program a Zumo-Shield robot with Arduino board which needs to navigate itself along the corridor and when reaches to a room search for survivors and report back.
 
