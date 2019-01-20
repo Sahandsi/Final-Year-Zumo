@@ -68,7 +68,10 @@ void loop() {
 
     case 1:
       autonomous();
-      //      Serial.println("in Auto mode");
+    //      Serial.println("in Auto mode");
+    case 2:
+      searchRoom();
+            Serial.println("in room mode");
   }
 }
 
@@ -96,7 +99,7 @@ void manual() {
       delay(250);
       motors.setSpeeds(0, 0);
 
- 
+
     }
 
     if ((incomingByte == 'A') || (incomingByte == 'a')) {
@@ -117,7 +120,7 @@ void manual() {
       motors.setSpeeds(0, 0);
     }
 
-    
+
     if ((incomingByte == 'C') || (incomingByte == 'c')) {
 
       Serial.print("Auto on!");
@@ -132,11 +135,21 @@ void manual() {
 
     }
 
+
     if ((incomingByte == 'Y') || (incomingByte == 'y')) {
 
       Serial.print("Auto on!");
       robotStatus = 1;
       break;
+    } 
+
+
+    if ((incomingByte == 'L') || (incomingByte == 'l')) {
+
+      Serial.print("Stop for Room!");
+      robotStatus = 2;
+      break;
+
     }
 
   }
@@ -183,7 +196,7 @@ void autonomous() {
   //  Serial.print(sensor_values[5]);
   //  Serial.print(calibrateData[5]);
 
-    if ((incomingByte == 'K') || (incomingByte == 'k'))
+  if ((incomingByte == 'K') || (incomingByte == 'k'))
   {
     motors.setSpeeds(0, 0);
     robotStatus = 0;
@@ -221,7 +234,10 @@ void autonomous() {
     // otherwise, go straight
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
   }
-  
+
+}
+
+void searchRoom() {
 
 
 
