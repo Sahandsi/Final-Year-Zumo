@@ -26,7 +26,7 @@ unsigned int sensor_values[NUM_SENSORS]; // declare number of sensors on the zum
 int robotStatus;
 int motorSpeed;
 int calibrateData[6];
-int speed = 100;
+int speed = 150;
 bool sideBorder = false;
 bool walldetected = false;
 
@@ -49,10 +49,7 @@ void setup() {
     incomingByte = (char) Serial.read();
   }
 
-
   caliberate();
-
-
 
   robotStatus = 0;
 
@@ -61,7 +58,7 @@ void setup() {
 
 
 void loop() {
-  Serial.println(robotStatus);
+
   switch (robotStatus) {
     case 0:
       manual();
@@ -78,8 +75,9 @@ void loop() {
 }
 
 void manual() {
-  Serial.println("Manual Mode active");
+  
   incomingByte = Serial.read();
+
 
   if (incomingByte == 'w') {
 
@@ -97,27 +95,20 @@ void manual() {
     delay(250);
     motors.setSpeeds(0, 0);
   }
-  else if (incomingByte == 's') {
 
-    Serial.print("Moving Backward");
-    motors.setLeftSpeed(-speed);
-    motors.setRightSpeed(-speed);
-    delay(250);
-    motors.setSpeeds(0, 0);
-  }
   else if (incomingByte == 'a') {
 
     Serial.print("Moving Left");
-    motors.setLeftSpeed(0);
-    motors.setRightSpeed(speed);
+    motors.setLeftSpeed(-90);
+    motors.setRightSpeed(100);
     delay(250);
     motors.setSpeeds(0, 0);
   }
   else if (incomingByte == 'd') {
 
     Serial.print("Moving Right");
-    motors.setLeftSpeed(speed);
-    motors.setRightSpeed(0);
+    motors.setLeftSpeed(100);
+    motors.setRightSpeed(-90);
     delay(250);
     motors.setSpeeds(0, 0);
   }
@@ -132,7 +123,6 @@ void manual() {
     }
     if (incomingByte == 'a') {
       Serial.print("Room is on the left");
-      robotStatus = 2;
     }
     else {
       Serial.print("Room is on the right");
@@ -162,6 +152,7 @@ void manual() {
 
 void caliberate() {
 
+
   sensors.init();
 
   for (int i = 0; i < 160; i++)
@@ -170,31 +161,34 @@ void caliberate() {
     {
       // On above numbers spin right
       motors.setSpeeds(-CALIBERATE_SPEED, CALIBERATE_SPEED);
+
     }
     else
     {
       // on other numbers spin left
       motors.setSpeeds(CALIBERATE_SPEED, -CALIBERATE_SPEED);
+
     }
 
     sensors.calibrate();
-    delay(20);
+    delay(10);
+  }
 
     for (int i = 0; i < NUM_SENSORS; i++)
     {
       calibrateData[i] = sensors.calibratedMaximumOn[i];
     }
-  }
   motors.setSpeeds(0, 0);
 
   // Turn off LED to indicate we are through with calibration
   digitalWrite(13, LOW);
   buzzer.play(">g32>>c32");
+  Serial.println("Calibration complete");
 
 }
 
 void autonomous() {
-  Serial.println("Constant run");
+  
   robotStatus = 1;
   incomingByte = Serial.read();
 
@@ -206,9 +200,20 @@ void autonomous() {
   { motors.setSpeeds(0, 0);
     robotStatus = 0;
   }
-  else if (incomingByte == 'm') {
+  else if (incomingByte == 'b') {
 
-    Serial.print("Stop for Room!");
+    Serial.print("Stopped for the room");
+    motors.setSpeeds(0, 0);
+    while ((incomingByte != 'a') && (incomingByte != 'd'))
+    {
+      incomingByte = (char) Serial.read();
+    }
+    if (incomingByte == 'a') {
+      Serial.print("Room is on the left");
+    }
+    else {
+      Serial.print("Room is on the right");
+    }
     robotStatus = 2;
   }
   else if (sensor_values[3] > calibrateData[3] ) {
@@ -238,8 +243,6 @@ void autonomous() {
   {
     // otherwise, go straight
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
-    Serial.print("chargeeee");
-    Serial.println(robotStatus);
   }
 
 
@@ -247,34 +250,42 @@ void autonomous() {
 
 void searchRoom() {
 
-  Serial.println("Inside serachRoom function");
 
   incomingByte = Serial.read();
 
-  if (incomingByte == 'l') {
+  if (incomingByte == 'w') {
+
+    Serial.print("Moving Forward");
+    motors.setRightSpeed(speed);
+    motors.setLeftSpeed(speed);
+    delay(250);
+    motors.setSpeeds(0, 0);
+  }
+  else if (incomingByte == 's') {
+
+    Serial.print("Moving Backward");
+    motors.setLeftSpeed(-speed);
+    motors.setRightSpeed(-speed);
+    delay(250);
+    motors.setSpeeds(0, 0);
+  }
+
+  else if (incomingByte == 'a') {
 
     Serial.print("Moving Left");
-    motors.setLeftSpeed(0);
-    motors.setRightSpeed(speed);
-    delay(800);
-    Serial.print("Moving Forward");
-    motors.setRightSpeed(speed);
-    motors.setLeftSpeed(speed);
+    motors.setLeftSpeed(-20);
+    motors.setRightSpeed(100);
     delay(250);
     motors.setSpeeds(0, 0);
-
   }
-  else if (incomingByte == 'r') {
+  else if (incomingByte == 'd') {
 
     Serial.print("Moving Right");
-    motors.setLeftSpeed(speed);
-    motors.setRightSpeed(0);
-    delay(800);
-    Serial.print("Moving Forward");
-    motors.setRightSpeed(speed);
-    motors.setLeftSpeed(speed);
+    motors.setLeftSpeed(100);
+    motors.setRightSpeed(-20);
     delay(250);
     motors.setSpeeds(0, 0);
-
   }
+
+
 }
