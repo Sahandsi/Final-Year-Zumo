@@ -97,6 +97,14 @@ void manual() {
     delay(250);
     motors.setSpeeds(0, 0);
   }
+  else if (incomingByte == 's') {
+
+    Serial.print("Moving Backward");
+    motors.setLeftSpeed(-speed);
+    motors.setRightSpeed(-speed);
+    delay(250);
+    motors.setSpeeds(0, 0);
+  }
   else if (incomingByte == 'a') {
 
     Serial.print("Moving Left");
@@ -113,6 +121,25 @@ void manual() {
     delay(250);
     motors.setSpeeds(0, 0);
   }
+
+  else if (incomingByte == 'b') {
+
+    Serial.print("Stopped for the room");
+    motors.setSpeeds(0, 0);
+    while ((incomingByte != 'a') && (incomingByte != 'd'))
+    {
+      incomingByte = (char) Serial.read();
+    }
+    if (incomingByte == 'a') {
+      Serial.print("Room is on the left");
+      robotStatus = 2;
+    }
+    else {
+      Serial.print("Room is on the right");
+    }
+    robotStatus = 2;
+  }
+
   else if (incomingByte == 'c') {
 
     Serial.print("Auto on!");
