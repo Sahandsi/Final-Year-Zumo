@@ -11,28 +11,28 @@
   -------------------------------------------------------------------------*/
 #define LED 13
 // these might need to be tuned for different motor types
-#define NUM_SENSORS        6
-#define REVERSE_SPEED     50
-#define TURN_SPEED        100
 #define STOP_SPEED        0
 #define MINIMUM_PING      0
+#define TRIGGER_PIN       2
+#define ECHO_PIN          6
+#define NUM_SENSORS       6
+#define MAX_DISTANCE      30
+#define REVERSE_SPEED     50
+#define TURN_SPEED        100
 #define CALIBERATE_SPEED  150
 #define FORWARD_SPEED     150
-#define MAX_DISTANCE      30
-#define TRIGGER_PIN        2
-#define ECHO_PIN           6
 
+
+ZumoMotors motors;
+ZumoReflectanceSensorArray sensors(QTR_NO_EMITTER_PIN);
+ZumoBuzzer buzzer;
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 
 unsigned int sensor_values[NUM_SENSORS]; // declare number of sensors on the zumo
 int robotStatus;
 int calibrateData[6];
-
-ZumoMotors motors;
-ZumoReflectanceSensorArray sensors(QTR_NO_EMITTER_PIN);
-ZumoBuzzer buzzer;
-
 char incomingByte;      // a variable to read incoming serial data into
+
 
 void setup() {
   Serial.begin (9600);
@@ -72,7 +72,7 @@ void manual() {
     motors.setRightSpeed(FORWARD_SPEED);
     motors.setLeftSpeed(FORWARD_SPEED);
     delay(250);
-    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
+    motors.setSpeeds(STOP_SPEED, STOP_SPEED);
   }
   else if (incomingByte == 's') {
 
@@ -80,7 +80,7 @@ void manual() {
     motors.setLeftSpeed(-FORWARD_SPEED);
     motors.setRightSpeed(-FORWARD_SPEED);
     delay(250);
-    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
+    motors.setSpeeds(STOP_SPEED, STOP_SPEED);
   }
 
   else if (incomingByte == 'a') {
@@ -89,7 +89,7 @@ void manual() {
     motors.setLeftSpeed(-TURN_SPEED);
     motors.setRightSpeed(TURN_SPEED);
     delay(250);
-    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
+    motors.setSpeeds(STOP_SPEED, STOP_SPEED);
   }
   else if (incomingByte == 'd') {
 
@@ -97,13 +97,13 @@ void manual() {
     motors.setLeftSpeed(TURN_SPEED);
     motors.setRightSpeed(-TURN_SPEED);
     delay(250);
-    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
+    motors.setSpeeds(STOP_SPEED, STOP_SPEED);
   }
 
   else if (incomingByte == 'b') {
 
     Serial.print("Stopped for the room");
-    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
+    motors.setSpeeds(STOP_SPEED, STOP_SPEED);
     while ((incomingByte != 'a') && (incomingByte != 'd'))
     {
       incomingByte = (char) Serial.read();
@@ -132,11 +132,10 @@ void manual() {
   else if (incomingByte == 'k') {
 
     Serial.print("Stop!");
-    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
+    motors.setSpeeds(STOP_SPEED, STOP_SPEED);
 
   }
   else if (incomingByte == 'y') {
-
     Serial.print("Auto on!");
     // Sound off buzzer to denote Zumo is finished calibrating
     buzzer.play("L16 cdegreg4");
@@ -146,7 +145,6 @@ void manual() {
 }
 
 void caliberate() {
-
 
   sensors.init();
 
@@ -162,7 +160,6 @@ void caliberate() {
     {
       // on other numbers spin left
       motors.setSpeeds(CALIBERATE_SPEED, -CALIBERATE_SPEED);
-
     }
 
     sensors.calibrate();
@@ -173,7 +170,7 @@ void caliberate() {
   {
     calibrateData[i] = sensors.calibratedMaximumOn[i];
   }
-  motors.setSpeeds(STOP_SPEED,STOP_SPEED);
+  motors.setSpeeds(STOP_SPEED, STOP_SPEED);
   buzzer.play(">g32>>c32");
   Serial.println("Calibration complete");
 
@@ -189,13 +186,13 @@ void autonomous() {
   //    Serial.print(calibrateData[5]);
 
   if ( (incomingByte == 'k'))
-  { motors.setSpeeds(STOP_SPEED,STOP_SPEED);
+  { motors.setSpeeds(STOP_SPEED, STOP_SPEED);
     robotStatus = 0;
   }
   else if (incomingByte == 'b') {
 
     Serial.print("Stopped for the room");
-    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
+    motors.setSpeeds(STOP_SPEED, STOP_SPEED);
     while ((incomingByte != 'a') && (incomingByte != 'd'))
     {
       incomingByte = (char) Serial.read();
@@ -211,7 +208,7 @@ void autonomous() {
   else if (sensor_values[3] > calibrateData[3] ) {
     // if the middle sensors detect line, stop
     motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
-    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
+    motors.setSpeeds(STOP_SPEED, STOP_SPEED);
     robotStatus = 0;
   }
   else if (sensor_values[5] >= calibrateData[5])
@@ -236,7 +233,6 @@ void autonomous() {
     // otherwise, go straight
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
   }
-
 
 }
 
@@ -271,5 +267,5 @@ void searchRoom() {
     delay(40);
   }
 
-  motors.setSpeeds(STOP_SPEED,STOP_SPEED);
+  motors.setSpeeds(STOP_SPEED, STOP_SPEED);
 }
