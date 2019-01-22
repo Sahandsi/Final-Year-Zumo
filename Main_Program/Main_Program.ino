@@ -11,38 +11,28 @@
   -------------------------------------------------------------------------*/
 #define LED 13
 // these might need to be tuned for different motor types
-#define NUM_SENSORS        6  // 
-#define REVERSE_SPEED     50 // 
+#define NUM_SENSORS        6
+#define REVERSE_SPEED     50
 #define TURN_SPEED        100
+#define STOP_SPEED        0
+#define MINIMUM_PING      0
 #define CALIBERATE_SPEED  150
 #define FORWARD_SPEED     150
-#define REVERSE_DURATION  200 // ms
-#define TURN_DURATION     150 // ms
-#define MAX_DISTANCE      30  //
-#define TRIGGER_PIN        2  // 
-#define ECHO_PIN           6  // 
-//#define MAX_DISTANCE 200 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+#define MAX_DISTANCE      30
+#define TRIGGER_PIN        2
+#define ECHO_PIN           6
 
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 
 unsigned int sensor_values[NUM_SENSORS]; // declare number of sensors on the zumo
 int robotStatus;
-int motorSpeed;
 int calibrateData[6];
-int speed = 150;
-bool sideBorder = false;
-bool walldetected = false;
-int turn_direction;
 
 ZumoMotors motors;
 ZumoReflectanceSensorArray sensors(QTR_NO_EMITTER_PIN);
 ZumoBuzzer buzzer;
-//NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 
 char incomingByte;      // a variable to read incoming serial data into
-
-#define ABOVE_LINE(sensor)((sensor) > SENSOR_THRESHOLD)
-
 
 void setup() {
   Serial.begin (9600);
@@ -58,8 +48,6 @@ void setup() {
   robotStatus = 0;
 
 }
-
-
 
 void loop() {
 
@@ -81,41 +69,41 @@ void manual() {
   if (incomingByte == 'w') {
 
     Serial.print("Moving Forward");
-    motors.setRightSpeed(speed);
-    motors.setLeftSpeed(speed);
+    motors.setRightSpeed(FORWARD_SPEED);
+    motors.setLeftSpeed(FORWARD_SPEED);
     delay(250);
-    motors.setSpeeds(0, 0);
+    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
   }
   else if (incomingByte == 's') {
 
     Serial.print("Moving Backward");
-    motors.setLeftSpeed(-speed);
-    motors.setRightSpeed(-speed);
+    motors.setLeftSpeed(-FORWARD_SPEED);
+    motors.setRightSpeed(-FORWARD_SPEED);
     delay(250);
-    motors.setSpeeds(0, 0);
+    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
   }
 
   else if (incomingByte == 'a') {
 
     Serial.print("Moving Left");
-    motors.setLeftSpeed(-90);
-    motors.setRightSpeed(100);
+    motors.setLeftSpeed(-TURN_SPEED);
+    motors.setRightSpeed(TURN_SPEED);
     delay(250);
-    motors.setSpeeds(0, 0);
+    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
   }
   else if (incomingByte == 'd') {
 
     Serial.print("Moving Right");
-    motors.setLeftSpeed(100);
-    motors.setRightSpeed(-90);
+    motors.setLeftSpeed(TURN_SPEED);
+    motors.setRightSpeed(-TURN_SPEED);
     delay(250);
-    motors.setSpeeds(0, 0);
+    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
   }
 
   else if (incomingByte == 'b') {
 
     Serial.print("Stopped for the room");
-    motors.setSpeeds(0, 0);
+    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
     while ((incomingByte != 'a') && (incomingByte != 'd'))
     {
       incomingByte = (char) Serial.read();
@@ -126,7 +114,7 @@ void manual() {
     else {
       Serial.print("Room is on the right");
     }
-    //    robotStatus = 2;
+
   }
 
   else if (incomingByte == 'z') {
@@ -144,7 +132,7 @@ void manual() {
   else if (incomingByte == 'k') {
 
     Serial.print("Stop!");
-    motors.setSpeeds(0, 0);
+    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
 
   }
   else if (incomingByte == 'y') {
@@ -185,10 +173,7 @@ void caliberate() {
   {
     calibrateData[i] = sensors.calibratedMaximumOn[i];
   }
-  motors.setSpeeds(0, 0);
-
-  // Turn off LED to indicate we are through with calibration
-  digitalWrite(13, LOW);
+  motors.setSpeeds(STOP_SPEED,STOP_SPEED);
   buzzer.play(">g32>>c32");
   Serial.println("Calibration complete");
 
@@ -204,13 +189,13 @@ void autonomous() {
   //    Serial.print(calibrateData[5]);
 
   if ( (incomingByte == 'k'))
-  { motors.setSpeeds(0, 0);
+  { motors.setSpeeds(STOP_SPEED,STOP_SPEED);
     robotStatus = 0;
   }
   else if (incomingByte == 'b') {
 
     Serial.print("Stopped for the room");
-    motors.setSpeeds(0, 0);
+    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
     while ((incomingByte != 'a') && (incomingByte != 'd'))
     {
       incomingByte = (char) Serial.read();
@@ -226,24 +211,24 @@ void autonomous() {
   else if (sensor_values[3] > calibrateData[3] ) {
     // if the middle sensors detect line, stop
     motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
-    motors.setSpeeds(0, 0);
+    motors.setSpeeds(STOP_SPEED,STOP_SPEED);
     robotStatus = 0;
   }
   else if (sensor_values[5] >= calibrateData[5])
   {
     // if rightmost sensor detects line, reverse and turn to the left
     motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
-    delay(REVERSE_DURATION);
+    delay(200);
     motors.setSpeeds(-TURN_SPEED, TURN_SPEED);
-    delay(TURN_DURATION);
+    delay(150);
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
   }
   else if (sensor_values[0] >= calibrateData[0]) {
     // if leftmost sensor detects line, reverse and turn to the right
     motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
-    delay(REVERSE_DURATION);
+    delay(200);
     motors.setSpeeds(TURN_SPEED, -TURN_SPEED);
-    delay(TURN_DURATION);
+    delay(150);
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
   }
   else
@@ -264,7 +249,7 @@ void searchRoom() {
       // On above numbers spin right
       motors.setSpeeds(-CALIBERATE_SPEED, CALIBERATE_SPEED);
       Serial.println(sonar.ping_cm());
-      if (sonar.ping_cm() > 0)
+      if (sonar.ping_cm() > MINIMUM_PING)
       {
 
         Serial.println("Person Found");
@@ -276,9 +261,8 @@ void searchRoom() {
       // on other numbers spin left
       motors.setSpeeds(CALIBERATE_SPEED, -CALIBERATE_SPEED);
       Serial.println(sonar.ping_cm());
-      if (sonar.ping_cm() > 0)
+      if (sonar.ping_cm() > MINIMUM_PING)
       {
-        //      personFoundMessage();
         Serial.println("Person Found");
         break;
       }
@@ -287,5 +271,5 @@ void searchRoom() {
     delay(40);
   }
 
-  motors.setSpeeds(0, 0);
+  motors.setSpeeds(STOP_SPEED,STOP_SPEED);
 }
