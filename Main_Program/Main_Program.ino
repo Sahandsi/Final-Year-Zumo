@@ -18,9 +18,12 @@
 #define FORWARD_SPEED     150
 #define REVERSE_DURATION  200 // ms
 #define TURN_DURATION     150 // ms
-#define MAX_DISTANCE      30  // 
-#define TRIGGER_PIN        8  // 
-#define ECHO_PIN           9  // 
+#define MAX_DISTANCE      30  //
+#define TRIGGER_PIN        2  // 
+#define ECHO_PIN           6  // 
+//#define MAX_DISTANCE 200 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 
 unsigned int sensor_values[NUM_SENSORS]; // declare number of sensors on the zumo
 int robotStatus;
@@ -34,7 +37,7 @@ int turn_direction;
 ZumoMotors motors;
 ZumoReflectanceSensorArray sensors(QTR_NO_EMITTER_PIN);
 ZumoBuzzer buzzer;
-NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
+//NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 
 char incomingByte;      // a variable to read incoming serial data into
 
@@ -291,35 +294,36 @@ void searchRoom() {
 
     Serial.print("Scanning");
 
-    for (int i = 0; i < 4; i ++)
-    {
-      // Zumo will turn clockwise if turn_direction = 1.
-      // If turn_direction = -1 Zumo will turn counter-clockwise.
-      turn_direction *= -1;
 
-      // Turn direction.
-      motors.setSpeeds(turn_direction * TURN_SPEED, -1 * turn_direction * TURN_SPEED);
-    }
-    //    for (int i = 0; i < 160; i++)
-    //    {
-    //      if ((i > 10 && i <= 30) || (i > 50 && i <= 70) || (i > 90 && i <= 110) ||  (i > 130 && i <= 150) ) //extension of line follower and maze solver to higher numbers using trial and error
-    //      {
-    //        // On above numbers spin right
-    //        motors.setSpeeds(-CALIBERATE_SPEED, CALIBERATE_SPEED);
-    //
-    //      }
-    //      else
-    //      {
-    //        // on other numbers spin left
-    //        motors.setSpeeds(CALIBERATE_SPEED, -CALIBERATE_SPEED);
-    //
-    //      }
-    if (sonar.ping_cm() > 0)
+    for (int i = 0; i < 180; i++)
     {
-      Serial.println("Person Found");
-    }
+      if ((i > 20 && i <= 40) || (i > 60 && i <= 80) || (i > 100 && i <= 120) ||  (i > 140 && i <= 160) ) //extension of line follower and maze solver to higher numbers using trial and error
+      {
+        // On above numbers spin right
+        motors.setSpeeds(-CALIBERATE_SPEED, CALIBERATE_SPEED);
+        Serial.println(sonar.ping_cm());
+        if (sonar.ping_cm() > 0)
+        {
 
-    delay(10);
+          Serial.println("Person Found");
+          break;
+        }
+      }
+      else
+      {
+        // on other numbers spin left
+        motors.setSpeeds(CALIBERATE_SPEED, -CALIBERATE_SPEED);
+        Serial.println(sonar.ping_cm());
+        if (sonar.ping_cm() > 0)
+        {
+          //      personFoundMessage();
+          Serial.println("Person Found");
+          break;
+        }
+      }
+
+      delay(40);
+    }
 
     motors.setSpeeds(0, 0);
   }
