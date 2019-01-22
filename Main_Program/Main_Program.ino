@@ -29,6 +29,7 @@ int calibrateData[6];
 int speed = 150;
 bool sideBorder = false;
 bool walldetected = false;
+int turn_direction;
 
 ZumoMotors motors;
 ZumoReflectanceSensorArray sensors(QTR_NO_EMITTER_PIN);
@@ -75,7 +76,7 @@ void loop() {
 }
 
 void manual() {
-  
+
   incomingByte = Serial.read();
 
 
@@ -174,10 +175,10 @@ void caliberate() {
     delay(10);
   }
 
-    for (int i = 0; i < NUM_SENSORS; i++)
-    {
-      calibrateData[i] = sensors.calibratedMaximumOn[i];
-    }
+  for (int i = 0; i < NUM_SENSORS; i++)
+  {
+    calibrateData[i] = sensors.calibratedMaximumOn[i];
+  }
   motors.setSpeeds(0, 0);
 
   // Turn off LED to indicate we are through with calibration
@@ -188,7 +189,7 @@ void caliberate() {
 }
 
 void autonomous() {
-  
+
   robotStatus = 1;
   incomingByte = Serial.read();
 
@@ -286,6 +287,41 @@ void searchRoom() {
     delay(250);
     motors.setSpeeds(0, 0);
   }
+  else if (incomingByte == 'z') {
 
+    Serial.print("Scanning");
+
+    for (int i = 0; i < 4; i ++)
+    {
+      // Zumo will turn clockwise if turn_direction = 1.
+      // If turn_direction = -1 Zumo will turn counter-clockwise.
+      turn_direction *= -1;
+
+      // Turn direction.
+      motors.setSpeeds(turn_direction * TURN_SPEED, -1 * turn_direction * TURN_SPEED);
+    }
+    //    for (int i = 0; i < 160; i++)
+    //    {
+    //      if ((i > 10 && i <= 30) || (i > 50 && i <= 70) || (i > 90 && i <= 110) ||  (i > 130 && i <= 150) ) //extension of line follower and maze solver to higher numbers using trial and error
+    //      {
+    //        // On above numbers spin right
+    //        motors.setSpeeds(-CALIBERATE_SPEED, CALIBERATE_SPEED);
+    //
+    //      }
+    //      else
+    //      {
+    //        // on other numbers spin left
+    //        motors.setSpeeds(CALIBERATE_SPEED, -CALIBERATE_SPEED);
+    //
+    //      }
+    if (sonar.ping_cm() > 0)
+    {
+      Serial.println("Person Found");
+    }
+
+    delay(10);
+
+    motors.setSpeeds(0, 0);
+  }
 
 }
