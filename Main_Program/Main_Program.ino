@@ -70,12 +70,7 @@ void loop() {
     case 1:
       autonomous();
       break;
-    case 2:
-      searchRoom();
-      break;
   }
-
-
 }
 
 void manual() {
@@ -131,7 +126,13 @@ void manual() {
     else {
       Serial.print("Room is on the right");
     }
-    robotStatus = 2;
+    //    robotStatus = 2;
+  }
+
+  else if (incomingByte == 'z') {
+
+    searchRoom();
+
   }
 
   else if (incomingByte == 'c') {
@@ -149,6 +150,8 @@ void manual() {
   else if (incomingByte == 'y') {
 
     Serial.print("Auto on!");
+    // Sound off buzzer to denote Zumo is finished calibrating
+    buzzer.play("L16 cdegreg4");
     robotStatus = 1;
 
   }
@@ -254,78 +257,35 @@ void autonomous() {
 
 void searchRoom() {
 
-
-  incomingByte = Serial.read();
-
-  if (incomingByte == 'w') {
-
-    Serial.print("Moving Forward");
-    motors.setRightSpeed(speed);
-    motors.setLeftSpeed(speed);
-    delay(250);
-    motors.setSpeeds(0, 0);
-  }
-  else if (incomingByte == 's') {
-
-    Serial.print("Moving Backward");
-    motors.setLeftSpeed(-speed);
-    motors.setRightSpeed(-speed);
-    delay(250);
-    motors.setSpeeds(0, 0);
-  }
-
-  else if (incomingByte == 'a') {
-
-    Serial.print("Moving Left");
-    motors.setLeftSpeed(-20);
-    motors.setRightSpeed(100);
-    delay(250);
-    motors.setSpeeds(0, 0);
-  }
-  else if (incomingByte == 'd') {
-
-    Serial.print("Moving Right");
-    motors.setLeftSpeed(100);
-    motors.setRightSpeed(-20);
-    delay(250);
-    motors.setSpeeds(0, 0);
-  }
-  else if (incomingByte == 'z') {
-
-    Serial.print("Scanning");
-
-
-    for (int i = 0; i < 180; i++)
+  for (int i = 0; i < 180; i++)
+  {
+    if ((i > 20 && i <= 40) || (i > 60 && i <= 80) || (i > 100 && i <= 120) ||  (i > 140 && i <= 160) ) //extension of line follower and maze solver to higher numbers using trial and error
     {
-      if ((i > 20 && i <= 40) || (i > 60 && i <= 80) || (i > 100 && i <= 120) ||  (i > 140 && i <= 160) ) //extension of line follower and maze solver to higher numbers using trial and error
+      // On above numbers spin right
+      motors.setSpeeds(-CALIBERATE_SPEED, CALIBERATE_SPEED);
+      Serial.println(sonar.ping_cm());
+      if (sonar.ping_cm() > 0)
       {
-        // On above numbers spin right
-        motors.setSpeeds(-CALIBERATE_SPEED, CALIBERATE_SPEED);
-        Serial.println(sonar.ping_cm());
-        if (sonar.ping_cm() > 0)
-        {
 
-          Serial.println("Person Found");
-          break;
-        }
+        Serial.println("Person Found");
+        break;
       }
-      else
+    }
+    else
+    {
+      // on other numbers spin left
+      motors.setSpeeds(CALIBERATE_SPEED, -CALIBERATE_SPEED);
+      Serial.println(sonar.ping_cm());
+      if (sonar.ping_cm() > 0)
       {
-        // on other numbers spin left
-        motors.setSpeeds(CALIBERATE_SPEED, -CALIBERATE_SPEED);
-        Serial.println(sonar.ping_cm());
-        if (sonar.ping_cm() > 0)
-        {
-          //      personFoundMessage();
-          Serial.println("Person Found");
-          break;
-        }
+        //      personFoundMessage();
+        Serial.println("Person Found");
+        break;
       }
-
-      delay(40);
     }
 
-    motors.setSpeeds(0, 0);
+    delay(40);
   }
 
+  motors.setSpeeds(0, 0);
 }
