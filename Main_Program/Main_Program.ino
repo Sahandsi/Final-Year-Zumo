@@ -37,13 +37,6 @@ int endCounter;
 bool TJunction;
 
 
-
-unsigned long previousTime = 0;
-byte seconds ;
-byte minutes ;
-byte hours ;
-
-
 void setup() {
   Serial.begin (9600);
   incomingByte = Serial.read();
@@ -67,6 +60,9 @@ void loop() {
       break;
     case 1:
       autonomous();
+      break;
+     case 2:
+      junction();
       break;
   }
 }
@@ -110,6 +106,17 @@ void manual() {
     motors.setSpeeds(STOP_SPEED, STOP_SPEED);
   }
 
+
+    else if (incomingByte == 'h') {
+
+    Serial.println("Moving Right");
+//    motors.setLeftSpeed(TURN_SPEED);
+//    motors.setRightSpeed(-TURN_SPEED);
+    motors.setSpeeds(200, -100);
+    delay(700);
+    motors.setSpeeds(STOP_SPEED, STOP_SPEED);
+  }
+
   else if (incomingByte == 'b') {
 
     Serial.println("Stopped for the room");
@@ -133,28 +140,41 @@ void manual() {
 
   }
 
-  else if (incomingByte == 'c') {
+    else if (incomingByte == 'e') {
 
-    Serial.println("Turn Completed Auto on!");
-    robotStatus = 1;
-
-  }
-  else if (incomingByte == 'k') {
-
-    Serial.println("Stop!");
-    motors.setSpeeds(STOP_SPEED, STOP_SPEED);
-
-  }
-  else if (incomingByte == 'e') {
-
-    endCounter = endCounter + 1;
+    endCounter++;
     Serial.println(" ");
     Serial.print("Reached End Number");
     Serial.print(":");
     Serial.print(endCounter);
     motors.setSpeeds(STOP_SPEED, STOP_SPEED);
 
+
   }
+
+      else if ((incomingByte == 'c') && (endCounter == 1)) {
+    
+//    Serial.println("Turn Completed Auto on!");
+    Serial.println("in junction code");
+    robotStatus = 2;
+
+  }
+  
+  else if  ((incomingByte == 'c') && (endCounter != 1))  {
+
+    Serial.println("Turn Completed Auto on!");
+    robotStatus = 1;
+
+  }
+
+
+  else if (incomingByte == 'k') {
+
+    Serial.println("Stop!");
+    motors.setSpeeds(STOP_SPEED, STOP_SPEED);
+
+  }
+
   else if (incomingByte == 'y') {
     Serial.println("Auto on Mode Engaged!");
     // Sound off buzzer to denote Zumo is finished calibrating
@@ -210,27 +230,23 @@ void autonomous() {
   { motors.setSpeeds(STOP_SPEED, STOP_SPEED);
     robotStatus = 0;
   }
-//  else if (incomingByte == 'b') {
-//
-//    Serial.println("Stopped for the room");
-//    motors.setSpeeds(STOP_SPEED, STOP_SPEED);
-//    while ((incomingByte != 'a') && (incomingByte != 'd'))
-//    {
-//      incomingByte = (char) Serial.read();
-//    }
-//    if (incomingByte == 'a') {
-//      Serial.println("Room is on the left");
-//    }
-//    else {
-//      Serial.println("Room is on the right");
-//    }
-//    robotStatus = 0;
-//  }
+  else if (incomingByte == 'b') {
 
-  else if ( (incomingByte == 'v'))
-  { 
-    TJunction=true;
+    Serial.println("Stopped for the room");
+    motors.setSpeeds(STOP_SPEED, STOP_SPEED);
+    while ((incomingByte != 'a') && (incomingByte != 'd'))
+    {
+      incomingByte = (char) Serial.read();
+    }
+    if (incomingByte == 'a') {
+      Serial.println("Room is on the left");
+    }
+    else {
+      Serial.println("Room is on the right");
+    }
+    robotStatus = 0;
   }
+
   else if ((sensor_values[3] >= calibrateData[3] ) || (sensor_values[2] >= calibrateData[2] )) {
     // if the middle sensors detect line, stop
     motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
@@ -256,40 +272,12 @@ void autonomous() {
     delay(150);
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
   }
-  else if (TJunction != true)
+  else
   {
     // otherwise, go straight
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
 
-    //    if (millis() >= (previousTime))
-    //    {
-    //      previousTime = previousTime + 1000;  // use 100000 for uS
-    //      seconds = seconds + 1;
-    //      if (seconds == 60)
-    //      {
-    //        seconds = 0;
-    //        minutes = minutes + 1;
-    //      }
-    //      if (minutes == 60)
-    //      {
-    //        minutes = 0;
-    //        hours = hours + 1;
-    //      }
-    //      if (hours == 13)
-    //      {
-    //        hours = 1;
-    //      }
-    //
-    //    } // end 1 second
   }
-
-  
-
-//  Serial.print (hours, DEC);
-//  Serial.print (":");
-//  Serial.print (minutes, DEC);
-//  Serial.print (":");
-//  Serial.println(seconds, DEC);
 
 }
 
@@ -329,4 +317,43 @@ void searchRoom() {
   }
 
   motors.setSpeeds(STOP_SPEED, STOP_SPEED);
+}
+
+
+
+void junction(){
+
+  incomingByte = Serial.read();
+
+  sensors.read(sensor_values);
+
+  if ( (incomingByte == 'v'))
+  { 
+    robotStatus = 0;
+  }
+
+  else if (sensor_values[5] >= calibrateData[5])
+  {
+    // if rightmost sensor detects line, reverse and turn to the left
+    motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
+    delay(200);
+    motors.setSpeeds(-TURN_SPEED, TURN_SPEED);
+    delay(150);
+    motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+  }
+  else if (sensor_values[0] >= calibrateData[0]) {
+    // if leftmost sensor detects line, reverse and turn to the right
+    motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
+    delay(200);
+    motors.setSpeeds(TURN_SPEED, -TURN_SPEED);
+    delay(150);
+    motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+  }
+  else
+  {
+    // otherwise, go straight
+    motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+
+  }
+  
 }
