@@ -271,7 +271,7 @@ void autonomous() {
 
   sensors.read(sensor_values);
 
-  if ( (incomingByte == 'k'))
+  if ( (incomingByte == 'k'))             // Emergency stop in case auto mode broke down
   { motors.setSpeeds(STOP_SPEED, STOP_SPEED);
     robotStatus = 0;
   }
@@ -347,6 +347,15 @@ void autonomous() {
 
 }
 
+
+/*------------------------------------------------------------------------
+  This function which is developed to find the survivors in the room is
+  Insipired from calibrate function the robot will sweep the floor longer
+  and use the ultrasonic sensors.
+  If the sensors detect anything more than 0 means there is object and this
+  will stop the robot sweeping and output that a survivor has been found.
+  -------------------------------------------------------------------------*/
+
 void searchRoom() {
 
   motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
@@ -385,6 +394,15 @@ void searchRoom() {
   }
   motors.setSpeeds(STOP_SPEED, STOP_SPEED);
 }
+
+/*------------------------------------------------------------------------
+  This function which is developed to find the survivors in the room is
+  Insipired from calibrate function the robot will sweep the floor longer
+  and use the ultrasonic sensors.
+  If the sensors detect anything more than 0 means there is object and this
+  will stop the robot sweeping and output that a survivor has been found.
+  -------------------------------------------------------------------------*/
+
 
 void junction() {
 
