@@ -74,48 +74,19 @@ Open Arduino-IDE and in tools navigate to manage libraries.
 
  - search for zumo shield and install it. 
  - search for newping and install it.
+ 
+ After all the applications were installed conenct the XBee shield and use Arduino IDE to push the code to it.
+ Make sure that robot is in broadcast mode otherwise it will not work.
+ This goes for the Arduino if the robot is on broadcast mode the code will not be pushed with Arduino IDE
 
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+* Processing
+* Arduino
 
 ## Authors
 
 * **Sahand Simaei**
-
-## License
-
-
-
-## Acknowledgments
-
-*
 
 
