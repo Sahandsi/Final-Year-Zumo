@@ -14,7 +14,7 @@
 #define TURN_SPEED        100
 #define CALIBERATE_SPEED  200
 #define BACKWARD_SPEED    150
-#define FORWARD_SPEED     100
+#define FORWARD_SPEED     140
 
 #define LED 13
 #define STOP_SPEED        0                             // Setting engine speed to zero
@@ -146,7 +146,7 @@ void mainControl() {
     Serial.println("Moving Left");
     motors.setLeftSpeed(-TURN_SPEED);
     motors.setRightSpeed(TURN_SPEED);
-    delay(250);
+    delay(200);
     motors.setSpeeds(STOP_SPEED, STOP_SPEED);
   }
   else if (incomingByte == 'd') {             // Going right a bit
@@ -154,7 +154,7 @@ void mainControl() {
     Serial.println("Moving Right");
     motors.setLeftSpeed(TURN_SPEED);
     motors.setRightSpeed(-TURN_SPEED);
-    delay(250);
+    delay(200);
     motors.setSpeeds(STOP_SPEED, STOP_SPEED);
   }
 
@@ -162,7 +162,7 @@ void mainControl() {
 
     Serial.println("Rotating Right");
     motors.setSpeeds(200, -100);
-    delay(700);
+    delay(400);
     motors.setSpeeds(STOP_SPEED, STOP_SPEED);
   }
 
@@ -170,7 +170,7 @@ void mainControl() {
 
     Serial.println("Rotating left");
     motors.setSpeeds(-100, 200);
-    delay(700);
+    delay(400);
     motors.setSpeeds(STOP_SPEED, STOP_SPEED);
   }
 
