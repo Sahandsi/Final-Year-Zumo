@@ -14,7 +14,7 @@
 #define TURN_SPEED        100
 #define CALIBERATE_SPEED  200
 #define BACKWARD_SPEED    150
-#define FORWARD_SPEED     120
+#define FORWARD_SPEED     100
 
 #define LED 13
 #define STOP_SPEED        0                             // Setting engine speed to zero
@@ -37,6 +37,8 @@ String foundRooms[50];                                  // Array for storing roo
 String room;                                            // Initialiser for room side message
 char incomingByte;                                      // Read incoming serial data
 int endCounter;                                         // Initialiser for end counter
+int leftRouteFix;
+int rightRouteFix;
 
 void setup() {
   Serial.begin (9600);
@@ -116,6 +118,9 @@ void calibrateRobot() {
   -------------------------------------------------------------------------*/
 void mainControl() {
 
+    leftRouteFix = 0;
+    rightRouteFix = 0;
+
   incomingByte = Serial.read();
 
   if (incomingByte == 'w') {                   // Going forward a bit
@@ -177,6 +182,7 @@ void mainControl() {
   else if (incomingByte == 'b') {         // This tells the robot if the room is either left or right and stores with its number
 
     Serial.println("Stopped for the room");
+    Serial.println("Please choose indicate the position of the room...");
     motors.setSpeeds(STOP_SPEED, STOP_SPEED);
     while ((incomingByte != 'a') && (incomingByte != 'd'))
     {
@@ -217,14 +223,20 @@ void mainControl() {
 
   }
 
-  else if (incomingByte == 'e') {       // End counter as required by the spec
+  else if (incomingByte == 'x') {       // End counter as required by the spec
 
     endCounter++;
-    Serial.println(" ");
-    Serial.print("Reached End Number");
-    Serial.print(":");
+    Serial.print("Reached End Number : ");
     Serial.print(endCounter);
-    motors.setSpeeds(STOP_SPEED, STOP_SPEED);
+    Serial.println(" of the map ");
+
+  }
+
+  else if ((incomingByte == 'x') && (endCounter == 2)) {       // End counter as required by the spec
+
+    Serial.print("Reached End Number : ");
+    Serial.print(endCounter);
+    Serial.println(" of the map ");
 
   }
 
@@ -278,6 +290,7 @@ void autonomous() {
   else if (incomingByte == 'b') {         // This tells the robot if the room is either left or right and stores with its number
 
     Serial.println("Stopped for the room");
+    Serial.println("Please choose indicate the position of the room...");
     motors.setSpeeds(STOP_SPEED, STOP_SPEED);
     while ((incomingByte != 'a') && (incomingByte != 'd'))
     {
@@ -311,7 +324,7 @@ void autonomous() {
     robotStatus = 0;
   }
 
-  else if ((sensor_values[1] >= calibrateData[1] ) || (sensor_values[2] >= calibrateData[2] ) || (sensor_values[3] >= calibrateData[3] ) || (sensor_values[4] >= calibrateData[4] )) {
+  else if ((sensor_values[1] >= calibrateData[1] ) && (sensor_values[2] >= calibrateData[2] ) || (sensor_values[3] >= calibrateData[3] ) && (sensor_values[4] >= calibrateData[4] )) {
 
     // if the middle sensors detect line, stop
     motors.setSpeeds(STOP_SPEED, STOP_SPEED);
@@ -320,7 +333,7 @@ void autonomous() {
     robotStatus = 0;
   }
 
-  else if (sensor_values[5] >= calibrateData[5] || sensor_values[4] >= calibrateData[4])
+  else if (sensor_values[5] >= calibrateData[5])
   {
     // if rightmost sensor detects line, reverse and turn to the left
     motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
@@ -328,15 +341,33 @@ void autonomous() {
     motors.setSpeeds(-TURN_SPEED, TURN_SPEED);
     delay(150);
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+    leftRouteFix++;
+    if (leftRouteFix > 3)
+    {
+      Serial.println("Wall Detected!");
+      Serial.println("Manual Mode activated");
+      robotStatus = 0;
+      motors.setSpeeds(STOP_SPEED, STOP_SPEED);
+    }
+
 
   }
-  else if (sensor_values[0] >= calibrateData[0] || sensor_values[1] >= calibrateData[1]) {
+  else if (sensor_values[0] >= calibrateData[0]) {
+
     // if leftmost sensor detects line, reverse and turn to the right
     motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
     delay(200);
     motors.setSpeeds(TURN_SPEED, -TURN_SPEED);
     delay(150);
     motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+    rightRouteFix++;
+    if (rightRouteFix > 3)
+    {
+      Serial.println("Wall Detected!");
+      Serial.println("Manual Mode activated");
+      motors.setSpeeds(STOP_SPEED, STOP_SPEED);
+      robotStatus = 0;
+    }
 
   }
   else
@@ -384,11 +415,6 @@ void searchRoom() {
         Serial.println("Person Found");
         break;
       }
-      if (sonar.ping_cm() < MINIMUM_PING)
-      {
-        Serial.println("No Survivor Found");
-        break;
-      }
     }
     delay(40);
   }
@@ -399,14 +425,19 @@ void searchRoom() {
   This function is essentialy the auto mode but the robot will ignore all
   inputs unless the junction command has been given.
   -------------------------------------------------------------------------*/
-  
+
 void junction() {
 
   incomingByte = Serial.read();
 
   sensors.read(sensor_values);
 
-  if ( (incomingByte == 'v'))
+    if ( (incomingByte != 'v'))
+  {
+    Serial.println("Not the right keyword!");
+  }
+
+ else if ( (incomingByte == 'v'))
   {
     robotStatus = 0;
   }
