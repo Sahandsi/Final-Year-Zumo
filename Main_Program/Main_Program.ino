@@ -118,8 +118,8 @@ void calibrateRobot() {
   -------------------------------------------------------------------------*/
 void mainControl() {
 
-    leftRouteFix = 0;
-    rightRouteFix = 0;
+  leftRouteFix = 0;
+  rightRouteFix = 0;
 
   incomingByte = Serial.read();
 
@@ -223,17 +223,14 @@ void mainControl() {
 
   }
 
-  else if (incomingByte == 'x') {       // End counter as required by the spec
+  else if (incomingByte == 'e') {       // End counter as required by the spec
 
+
+    if (endCounter == 2)
+    {
+      endCounter = 1;
+    }
     endCounter++;
-    Serial.print("Reached End Number : ");
-    Serial.print(endCounter);
-    Serial.println(" of the map ");
-
-  }
-
-  else if ((incomingByte == 'x') && (endCounter == 2)) {       // End counter as required by the spec
-
     Serial.print("Reached End Number : ");
     Serial.print(endCounter);
     Serial.println(" of the map ");
@@ -432,12 +429,7 @@ void junction() {
 
   sensors.read(sensor_values);
 
-    if ( (incomingByte != 'v'))
-  {
-    Serial.println("Not the right keyword!");
-  }
-
- else if ( (incomingByte == 'v'))
+  if ( (incomingByte == 'v'))
   {
     robotStatus = 0;
   }
